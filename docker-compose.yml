@@ -13,7 +13,7 @@ services:
       - 5432:5432
   injob-keycloak:
     image: quay.io/keycloak/keycloak:20.0.3
-    command: ["-v", "start-dev", "--http-relative-path=/auth","--import-realm"]
+    command: ["-v", "start-dev", "--http-relative-path=/","--import-realm"]
     environment:
       KC_DB: postgres
       KC_DB_URL_HOST: injob-postgres
@@ -24,10 +24,10 @@ services:
       KC_DB_SCHEMA: public
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      # KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm-export.json
+      KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm-export.json
     container_name: injob-keycloak-container
-    # volumes:
-    #   - ./keycloak/realms/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    volumes:
+      - ./keycloak/realms/realm-export.json:/opt/keycloak/data/import/realm-export.json
     ports:
       - 8080:8080
     depends_on:
