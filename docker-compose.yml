@@ -11,6 +11,9 @@ services:
     container_name: injob-postgres-container
     ports:
       - 5432:5432
+    networks:
+      - injob-network
+
   injob-keycloak:
     image: quay.io/keycloak/keycloak:20.0.3
     command: ["-v", "start-dev", "--http-relative-path=/","--import-realm"]
@@ -32,6 +35,9 @@ services:
       - 8080:8080
     depends_on:
       - injob-postgres
+    networks:
+      - injob-network
+
   injob-adminer:
     image: adminer:latest
     environment:
@@ -40,6 +46,9 @@ services:
     container_name: injob-adminer-container
     ports:
       - 8082:8082
+    networks:
+      - injob-network
+  
   injob-db:
     image: postgres:latest
     environment:
@@ -49,6 +58,32 @@ services:
     container_name: injobdb-container
     ports:
       - 5433:5432
-  
+    networks:
+      - injob-network
+
+  injob-back:
+    image: injob-back:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://injob-db:5432/injobdb  # Corrected port
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: azerty
+      KEYCLOAK_AUTH_URL: http://injob-keycloak:8080/keycloak/auth/realms/in_job
+      API_URL: http://injob-back:8081/back/api
+      API_VERSION: 0.0.1
+      SERVER_PORT: 8081
+      KEYCLOAK_BASE_URL: http://injob-keycloak:8080
+      REALM: in_job
+    container_name: injobback-container
+    ports:
+      - 8081:8081
+    depends_on:
+      - injob-db
+      - injob-keycloak
+    networks:
+      - injob-network  
+
 volumes:
   postgres_data:
+
+networks:
+  injob-network:
